@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
-	log "github.com/go-admin-team/go-admin-core/logger"
+	"github.com/zentic-org/go-admin-core/logger"
+	"github.com/zentic-org/go-admin-core/sdk/pkg"
+	log "github.com/zentic-org/go-admin-core/logger"
 )
 
 type Logger struct {

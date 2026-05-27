@@ -334,8 +334,8 @@ $ go build ./logger/...
 ### 单元测试
 ```bash
 $ go test ./logger/...
-ok      github.com/go-admin-team/go-admin-core/logger   0.535s
-ok      github.com/go-admin-team/go-admin-core/logger/plugins/zap 0.268s
+ok      github.com/zentic-org/go-admin-core/logger   0.535s
+ok      github.com/zentic-org/go-admin-core/logger/plugins/zap 0.268s
 ✅ 所有测试通过
 ```
 

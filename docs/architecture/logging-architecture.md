@@ -269,7 +269,7 @@ func RequestLogger(config RequestLoggerConfig) gin.HandlerFunc
 // 业务代码
 package user
 
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 var log = logger.With("module", "user")
 
@@ -294,7 +294,7 @@ func CreateUser(ctx context.Context, name string, age int) error {
 package main
 
 import (
-    "github.com/go-admin-team/go-admin-core/sdk/pkg/middleware"
+    "github.com/zentic-org/go-admin-core/sdk/pkg/middleware"
 )
 
 func setupRouter() {

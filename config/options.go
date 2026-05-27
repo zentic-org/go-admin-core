@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/go-admin-team/go-admin-core/config/loader"
-	"github.com/go-admin-team/go-admin-core/config/reader"
-	"github.com/go-admin-team/go-admin-core/config/source"
+	"github.com/zentic-org/go-admin-core/config/loader"
+	"github.com/zentic-org/go-admin-core/config/reader"
+	"github.com/zentic-org/go-admin-core/config/source"
 )
 
 // WithLoader sets the loader for manager config

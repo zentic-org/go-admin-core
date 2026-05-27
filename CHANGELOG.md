@@ -16,7 +16,7 @@ This release focuses on **package structure optimization** to improve import cla
 **Philosophy**: Promote frequently-used packages to root level for better discoverability, while keeping deprecated paths functional until v2.0.0.
 
 **Key Improvements**:
-- ✅ Cleaner import paths (`github.com/go-admin-team/go-admin-core/jwtauth` vs `github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth`)
+- ✅ Cleaner import paths (`github.com/zentic-org/go-admin-core/jwtauth` vs `github.com/zentic-org/go-admin-core/sdk/pkg/jwtauth`)
 - ✅ Better package organization (consistent naming, reduced nesting)
 - ✅ 100% backward compatibility (old paths still work)
 - ✅ Automated migration tool provided
@@ -48,16 +48,16 @@ This release focuses on **package structure optimization** to improve import cla
 ```go
 // Before (v1.5.x)
 import (
-    "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-    "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
-    "github.com/go-admin-team/go-admin-core/observability/audit"
+    "github.com/zentic-org/go-admin-core/sdk/pkg/jwtauth"
+    "github.com/zentic-org/go-admin-core/sdk/pkg/response"
+    "github.com/zentic-org/go-admin-core/observability/audit"
 )
 
 // After (v1.6.0+)
 import (
-    "github.com/go-admin-team/go-admin-core/jwtauth"
-    "github.com/go-admin-team/go-admin-core/response"
-    "github.com/go-admin-team/go-admin-core/observe/audit"
+    "github.com/zentic-org/go-admin-core/jwtauth"
+    "github.com/zentic-org/go-admin-core/response"
+    "github.com/zentic-org/go-admin-core/observe/audit"
 )
 ```
 
@@ -253,7 +253,7 @@ result := oldcaptcha.Verify(captchaId, "test", true)
 ```bash
 # Download migration script
 cd /path/to/your/project
-curl -O https://raw.githubusercontent.com/go-admin-team/go-admin-core/main/tools/migrate-v1.6.sh
+curl -O https://raw.githubusercontent.com/zentic-org/go-admin-core/main/tools/migrate-v1.6.sh
 
 # Run migration
 bash migrate-v1.6.sh
@@ -268,7 +268,7 @@ go test ./...
 
 1. **Update go.mod**:
    ```bash
-   go get github.com/go-admin-team/go-admin-core@v1.6.0-beta
+   go get github.com/zentic-org/go-admin-core@v1.6.0-beta
    go mod tidy
    ```
 
@@ -357,13 +357,13 @@ This release includes a **complete architecture refactoring** to simplify depend
   ```go.mod
   // Before
   require (
-      github.com/go-admin-team/go-admin-core v1.5.3-rc.4
-      github.com/go-admin-team/go-admin-core/sdk v1.5.3-rc.4
+      github.com/zentic-org/go-admin-core v1.5.3-rc.4
+      github.com/zentic-org/go-admin-core/sdk v1.5.3-rc.4
   )
   
   // After
   require (
-      github.com/go-admin-team/go-admin-core v1.6.0-alpha
+      github.com/zentic-org/go-admin-core v1.6.0-alpha
   )
   ```
 
@@ -373,9 +373,9 @@ All import paths have been reorganized to reflect the new directory structure:
 
 | Old Import | New Import |
 |------------|-----------|
-| `github.com/go-admin-team/go-admin-core/debug/writer` | `github.com/go-admin-team/go-admin-core/logger/writer` |
-| `github.com/go-admin-team/go-admin-core/debug/log` | `github.com/go-admin-team/go-admin-core/observability/audit` |
-| `github.com/go-admin-team/go-admin-core/plugins/logger/zap` | `github.com/go-admin-team/go-admin-core/logger/plugins/zap` |
+| `github.com/zentic-org/go-admin-core/debug/writer` | `github.com/zentic-org/go-admin-core/logger/writer` |
+| `github.com/zentic-org/go-admin-core/debug/log` | `github.com/zentic-org/go-admin-core/observability/audit` |
+| `github.com/zentic-org/go-admin-core/plugins/logger/zap` | `github.com/zentic-org/go-admin-core/logger/plugins/zap` |
 
 **Migration Script**:
 ```bash

@@ -21,7 +21,7 @@ func TestCallerStackDebug(t *testing.T) {
 		fn := frame.Function
 		
 		isLoggerImpl := (strings.Contains(file, "/logger/") && !strings.HasSuffix(file, "_test.go")) || 
-		                 (strings.Contains(fn, "github.com/go-admin-team/go-admin-core/logger") && !strings.Contains(fn, "_test."))
+		                 (strings.Contains(fn, "github.com/zentic-org/go-admin-core/logger") && !strings.Contains(fn, "_test."))
 		isLogrus := strings.Contains(file, "/logrus@")
 		isTesting := strings.Contains(file, "/testing/") || strings.Contains(fn, "testing.")
 		isRuntime := strings.Contains(file, "/runtime/") || strings.Contains(fn, "runtime.")

@@ -4,20 +4,20 @@ import (
 	"testing"
 
 	// 测试新路径
-	newcaptcha "github.com/go-admin-team/go-admin-core/captcha"
-	newjwtauth "github.com/go-admin-team/go-admin-core/jwtauth"
-	newresponse "github.com/go-admin-team/go-admin-core/response"
-	newcasbin "github.com/go-admin-team/go-admin-core/casbin"
-	newaudit "github.com/go-admin-team/go-admin-core/observe/audit"
-	newgormlog "github.com/go-admin-team/go-admin-core/tools/gorm/gormlog"
+	newcaptcha "github.com/zentic-org/go-admin-core/captcha"
+	newjwtauth "github.com/zentic-org/go-admin-core/jwtauth"
+	newresponse "github.com/zentic-org/go-admin-core/response"
+	newcasbin "github.com/zentic-org/go-admin-core/casbin"
+	newaudit "github.com/zentic-org/go-admin-core/observe/audit"
+	newgormlog "github.com/zentic-org/go-admin-core/tools/gorm/gormlog"
 
 	// 测试旧路径(兼容层)
-	oldcaptcha "github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
-	oldjwtauth "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
-	oldresponse "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
-	oldcasbin "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin"
-	oldaudit "github.com/go-admin-team/go-admin-core/observability/audit"
-	oldgormlog "github.com/go-admin-team/go-admin-core/tools/gorm/logger"
+	oldcaptcha "github.com/zentic-org/go-admin-core/sdk/pkg/captcha"
+	oldjwtauth "github.com/zentic-org/go-admin-core/sdk/pkg/jwtauth"
+	oldresponse "github.com/zentic-org/go-admin-core/sdk/pkg/response"
+	oldcasbin "github.com/zentic-org/go-admin-core/sdk/pkg/casbin"
+	oldaudit "github.com/zentic-org/go-admin-core/observability/audit"
+	oldgormlog "github.com/zentic-org/go-admin-core/tools/gorm/logger"
 
 	"github.com/mojocn/base64Captcha"
 	"gorm.io/gorm/logger"
@@ -258,38 +258,38 @@ func TestImportPaths(t *testing.T) {
 	}{
 		{
 			name:     "captcha",
-			oldPath:  "github.com/go-admin-team/go-admin-core/sdk/pkg/captcha",
-			newPath:  "github.com/go-admin-team/go-admin-core/captcha",
+			oldPath:  "github.com/zentic-org/go-admin-core/sdk/pkg/captcha",
+			newPath:  "github.com/zentic-org/go-admin-core/captcha",
 			verified: true,
 		},
 		{
 			name:     "jwtauth",
-			oldPath:  "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth",
-			newPath:  "github.com/go-admin-team/go-admin-core/jwtauth",
+			oldPath:  "github.com/zentic-org/go-admin-core/sdk/pkg/jwtauth",
+			newPath:  "github.com/zentic-org/go-admin-core/jwtauth",
 			verified: true,
 		},
 		{
 			name:     "response",
-			oldPath:  "github.com/go-admin-team/go-admin-core/sdk/pkg/response",
-			newPath:  "github.com/go-admin-team/go-admin-core/response",
+			oldPath:  "github.com/zentic-org/go-admin-core/sdk/pkg/response",
+			newPath:  "github.com/zentic-org/go-admin-core/response",
 			verified: true,
 		},
 		{
 			name:     "casbin",
-			oldPath:  "github.com/go-admin-team/go-admin-core/sdk/pkg/casbin",
-			newPath:  "github.com/go-admin-team/go-admin-core/casbin",
+			oldPath:  "github.com/zentic-org/go-admin-core/sdk/pkg/casbin",
+			newPath:  "github.com/zentic-org/go-admin-core/casbin",
 			verified: true,
 		},
 		{
 			name:     "observe/audit",
-			oldPath:  "github.com/go-admin-team/go-admin-core/observability/audit",
-			newPath:  "github.com/go-admin-team/go-admin-core/observe/audit",
+			oldPath:  "github.com/zentic-org/go-admin-core/observability/audit",
+			newPath:  "github.com/zentic-org/go-admin-core/observe/audit",
 			verified: true,
 		},
 		{
 			name:     "gormlog",
-			oldPath:  "github.com/go-admin-team/go-admin-core/tools/gorm/logger",
-			newPath:  "github.com/go-admin-team/go-admin-core/tools/gorm/gormlog",
+			oldPath:  "github.com/zentic-org/go-admin-core/tools/gorm/logger",
+			newPath:  "github.com/zentic-org/go-admin-core/tools/gorm/gormlog",
 			verified: true,
 		},
 	}

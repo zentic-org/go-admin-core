@@ -138,36 +138,36 @@
 
 ✅ **jwtauth/user/user.go**
 ```go
-// Before: github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth
-// After:  github.com/go-admin-team/go-admin-core/jwtauth
+// Before: github.com/zentic-org/go-admin-core/sdk/pkg/jwtauth
+// After:  github.com/zentic-org/go-admin-core/jwtauth
 // 状态: ✅ 已更新
 ```
 
 ✅ **response/antd/model.go**
 ```go
-// Before: github.com/go-admin-team/go-admin-core/sdk/pkg/response
-// After:  github.com/go-admin-team/go-admin-core/response
+// Before: github.com/zentic-org/go-admin-core/sdk/pkg/response
+// After:  github.com/zentic-org/go-admin-core/response
 // 状态: ✅ 已更新
 ```
 
 ✅ **sdk/api/api.go**
 ```go
-// Before: github.com/go-admin-team/go-admin-core/sdk/pkg/response
-// After:  github.com/go-admin-team/go-admin-core/response
+// Before: github.com/zentic-org/go-admin-core/sdk/pkg/response
+// After:  github.com/zentic-org/go-admin-core/response
 // 状态: ✅ 已更新
 ```
 
 ✅ **sdk/antd_api/api.go**
 ```go
-// Before: github.com/go-admin-team/go-admin-core/sdk/pkg/response/antd
-// After:  github.com/go-admin-team/go-admin-core/response/antd
+// Before: github.com/zentic-org/go-admin-core/sdk/pkg/response/antd
+// After:  github.com/zentic-org/go-admin-core/response/antd
 // 状态: ✅ 已更新
 ```
 
 ✅ **logger/default.go**
 ```go
-// Before: github.com/go-admin-team/go-admin-core/observability/audit
-// After:  github.com/go-admin-team/go-admin-core/observe/audit
+// Before: github.com/zentic-org/go-admin-core/observability/audit
+// After:  github.com/zentic-org/go-admin-core/observe/audit
 // 状态: ✅ 已更新
 ```
 

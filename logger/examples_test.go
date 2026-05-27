@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-admin-team/go-admin-core/logger"
+	"github.com/zentic-org/go-admin-core/logger"
 )
 
 // 示例 1：使用默认 Logrus Logger

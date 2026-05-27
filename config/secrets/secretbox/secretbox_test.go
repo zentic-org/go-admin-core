@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/go-admin-team/go-admin-core/config/secrets"
+	"github.com/zentic-org/go-admin-core/config/secrets"
 )
 
 func TestSecretBox(t *testing.T) {

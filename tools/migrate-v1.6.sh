@@ -40,7 +40,7 @@ check_go_project() {
 
 # 检查是否使用了 go-admin-core
 check_dependency() {
-    if ! grep -q "github.com/go-admin-team/go-admin-core" go.mod; then
+    if ! grep -q "github.com/zentic-org/go-admin-core" go.mod; then
         print_error "项目未依赖 go-admin-core，无需迁移"
         exit 1
     fi
@@ -63,7 +63,7 @@ backup_project() {
 find_files_to_update() {
     print_info "扫描需要更新的文件..."
     
-    local files=$(grep -rl "github.com/go-admin-team/go-admin-core/\(sdk/pkg/\(captcha\|jwtauth\|response\|casbin\)\|observability/audit\|tools/gorm/logger\)" \
+    local files=$(grep -rl "github.com/zentic-org/go-admin-core/\(sdk/pkg/\(captcha\|jwtauth\|response\|casbin\)\|observability/audit\|tools/gorm/logger\)" \
         --include="*.go" \
         --exclude-dir="vendor" \
         --exclude-dir=".git" \
@@ -97,12 +97,12 @@ migrate_imports() {
         local tmpfile="${file}.tmp"
         
         # 执行替换
-        sed -e 's|github\.com/go-admin-team/go-admin-core/sdk/pkg/captcha|github.com/go-admin-team/go-admin-core/captcha|g' \
-            -e 's|github\.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth|github.com/go-admin-team/go-admin-core/jwtauth|g' \
-            -e 's|github\.com/go-admin-team/go-admin-core/sdk/pkg/response|github.com/go-admin-team/go-admin-core/response|g' \
-            -e 's|github\.com/go-admin-team/go-admin-core/sdk/pkg/casbin|github.com/go-admin-team/go-admin-core/casbin|g' \
-            -e 's|github\.com/go-admin-team/go-admin-core/observability/audit|github.com/go-admin-team/go-admin-core/observe/audit|g' \
-            -e 's|github\.com/go-admin-team/go-admin-core/tools/gorm/logger|github.com/go-admin-team/go-admin-core/tools/gorm/gormlog|g' \
+        sed -e 's|github\.com/zentic-org/go-admin-core/sdk/pkg/captcha|github.com/zentic-org/go-admin-core/captcha|g' \
+            -e 's|github\.com/zentic-org/go-admin-core/sdk/pkg/jwtauth|github.com/zentic-org/go-admin-core/jwtauth|g' \
+            -e 's|github\.com/zentic-org/go-admin-core/sdk/pkg/response|github.com/zentic-org/go-admin-core/response|g' \
+            -e 's|github\.com/zentic-org/go-admin-core/sdk/pkg/casbin|github.com/zentic-org/go-admin-core/casbin|g' \
+            -e 's|github\.com/zentic-org/go-admin-core/observability/audit|github.com/zentic-org/go-admin-core/observe/audit|g' \
+            -e 's|github\.com/zentic-org/go-admin-core/tools/gorm/logger|github.com/zentic-org/go-admin-core/tools/gorm/gormlog|g' \
             "$file" > "$tmpfile"
         
         # 替换原文件
@@ -173,7 +173,7 @@ go-admin-core v1.6.0 迁移报告
 4. 如遇到问题，可恢复备份目录
 
 更多信息:
-https://github.com/go-admin-team/go-admin-core/blob/dev/docs/migration/v1.6.0-plan.md
+https://github.com/zentic-org/go-admin-core/blob/dev/docs/migration/v1.6.0-plan.md
 EOF
     
     print_success "报告已生成: $report_file"

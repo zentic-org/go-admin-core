@@ -334,7 +334,7 @@ SanitizerConfig{
 package main
 
 import (
-    "github.com/go-admin-team/go-admin-core/logger"
+    "github.com/zentic-org/go-admin-core/logger"
 )
 
 func main() {
@@ -630,13 +630,13 @@ logger.WithSanitizer(logger.SanitizerConfig{
 
 ```bash
 # 测试异步日志
-go test -v -run TestAsyncLogger github.com/go-admin-team/go-admin-core/logger
+go test -v -run TestAsyncLogger github.com/zentic-org/go-admin-core/logger
 
 # 测试脱敏功能
-go test -v -run TestSanitizerLogger github.com/go-admin-team/go-admin-core/logger
+go test -v -run TestSanitizerLogger github.com/zentic-org/go-admin-core/logger
 
 # 测试采样功能
-go test -v -run TestSamplingLogger github.com/go-admin-team/go-admin-core/logger
+go test -v -run TestSamplingLogger github.com/zentic-org/go-admin-core/logger
 
 # 运行所有测试
 go test -v ./logger/...
@@ -680,7 +680,7 @@ package main
 
 import (
     "time"
-    "github.com/go-admin-team/go-admin-core/logger"
+    "github.com/zentic-org/go-admin-core/logger"
 )
 
 func main() {

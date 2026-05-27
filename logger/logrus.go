@@ -500,7 +500,7 @@ func (h *CallerHook) Fire(entry *logrus.Entry) error {
 		   !strings.Contains(frame.File, "/logrus@") &&
 		   !strings.Contains(frame.File, "/runtime/") &&
 		   !strings.Contains(frame.File, "/testing/") &&
-		   !strings.Contains(frame.Function, "github.com/go-admin-team/go-admin-core/logger") &&
+		   !strings.Contains(frame.Function, "github.com/zentic-org/go-admin-core/logger") &&
 		   !strings.Contains(frame.Function, "github.com/sirupsen/logrus") &&
 		   !strings.Contains(frame.Function, "runtime.") &&
 		   !strings.Contains(frame.Function, "testing.") {

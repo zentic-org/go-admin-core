@@ -18,7 +18,7 @@ v1.6.0 引入了**零分配高性能日志系统**，性能提升 10-100 倍，�
 ### 1. 基础用法 - 兼容旧版本
 
 ```go
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 // 使用默认 logger（与 v1.5.x 完全兼容）
 log := logger.NewLogger()
@@ -31,7 +31,7 @@ log.Fields(map[string]interface{}{
 ### 2. 高性能用法 - Zap Logger
 
 ```go
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 // 创建 zap logger（性能提升 30x）
 log := logger.NewZapLogger(
@@ -96,8 +96,8 @@ logger:
 
 ```go
 import (
-    "github.com/go-admin-team/go-admin-core/logger"
-    "github.com/go-admin-team/go-admin-core/sdk/config"
+    "github.com/zentic-org/go-admin-core/logger"
+    "github.com/zentic-org/go-admin-core/sdk/config"
 )
 
 // 从配置文件初始化
@@ -126,7 +126,7 @@ log := logger.NewZapLogger(
 ### 常用字段
 
 ```go
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 log.Info("Request processed",
     // 基础类型
@@ -172,8 +172,8 @@ logger.Any("metadata", map[string]string{
 
 ```go
 import (
-    "github.com/go-admin-team/go-admin-core/logger"
-    coremiddleware "github.com/go-admin-team/go-admin-core/sdk/pkg/middleware"
+    "github.com/zentic-org/go-admin-core/logger"
+    coremiddleware "github.com/zentic-org/go-admin-core/sdk/pkg/middleware"
 )
 
 func LoggerToFile() gin.HandlerFunc {
@@ -248,7 +248,7 @@ BenchmarkSamplingLogger-8      50,000,000        24 ns/op        0 B/op     0 al
 
 ```go
 // 只需升级依赖，无需修改代码
-go get github.com/go-admin-team/go-admin-core@v1.6.0
+go get github.com/zentic-org/go-admin-core@v1.6.0
 ```
 
 **风险**：✅ 无风险，完全兼容
@@ -396,6 +396,6 @@ logger:
 
 ## 支持与反馈
 
-遇到问题？提交 Issue：https://github.com/go-admin-team/go-admin-core/issues
+遇到问题？提交 Issue：https://github.com/zentic-org/go-admin-core/issues
 
 性能提升数据不符？欢迎提供基准测试结果！

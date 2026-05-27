@@ -20,7 +20,7 @@
 
 ```bash
 # 下载脚本
-curl -O https://raw.githubusercontent.com/go-admin-team/go-admin-core/dev/tools/migrate-v1.6.sh
+curl -O https://raw.githubusercontent.com/zentic-org/go-admin-core/dev/tools/migrate-v1.6.sh
 
 # 或者如果已经在 go-admin-core 项目中
 cp /path/to/go-admin-core/tools/migrate-v1.6.sh .
@@ -72,7 +72,7 @@ bash /path/to/go-admin-core/tools/migrate-v1.6.sh
 #### 1. 更新 go.mod
 
 ```bash
-go get github.com/go-admin-team/go-admin-core@v1.6.0-beta
+go get github.com/zentic-org/go-admin-core@v1.6.0-beta
 go mod tidy
 ```
 
@@ -81,17 +81,17 @@ go mod tidy
 使用 IDE 的"查找并替换"功能（确保启用正则表达式）:
 
 ```
-查找: github\.com/go-admin-team/go-admin-core/sdk/pkg/captcha
-替换: github.com/go-admin-team/go-admin-core/captcha
+查找: github\.com/zentic-org/go-admin-core/sdk/pkg/captcha
+替换: github.com/zentic-org/go-admin-core/captcha
 
-查找: github\.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth
-替换: github.com/go-admin-team/go-admin-core/jwtauth
+查找: github\.com/zentic-org/go-admin-core/sdk/pkg/jwtauth
+替换: github.com/zentic-org/go-admin-core/jwtauth
 
-查找: github\.com/go-admin-team/go-admin-core/sdk/pkg/response
-替换: github.com/go-admin-team/go-admin-core/response
+查找: github\.com/zentic-org/go-admin-core/sdk/pkg/response
+替换: github.com/zentic-org/go-admin-core/response
 
-查找: github\.com/go-admin-team/go-admin-core/sdk/pkg/casbin
-替换: github.com/go-admin-team/go-admin-core/casbin
+查找: github\.com/zentic-org/go-admin-core/sdk/pkg/casbin
+替换: github.com/zentic-org/go-admin-core/casbin
 ```
 
 #### 3. 验证更改
@@ -150,14 +150,14 @@ A:
 
 A: 是的，建议更新到 v1.6.0-beta 或更高版本:
 ```bash
-go get github.com/go-admin-team/go-admin-core@v1.6.0-beta
+go get github.com/zentic-org/go-admin-core@v1.6.0-beta
 ```
 
 ### 获取帮助
 
 - 📖 [完整迁移文档](../../docs/migration/v1.6.0-plan.md)
-- 🐛 [提交 Issue](https://github.com/go-admin-team/go-admin-core/issues)
-- 💬 [讨论区](https://github.com/go-admin-team/go-admin-core/discussions)
+- 🐛 [提交 Issue](https://github.com/zentic-org/go-admin-core/issues)
+- 💬 [讨论区](https://github.com/zentic-org/go-admin-core/discussions)
 
 ### 示例输出
 
@@ -166,7 +166,7 @@ go get github.com/go-admin-team/go-admin-core@v1.6.0-beta
   go-admin-core v1.6.0 自动迁移工具
 ================================================
 
-[INFO] 检测到 Go 项目: github.com/go-admin-team/go-admin-pro
+[INFO] 检测到 Go 项目: github.com/zentic-org/go-admin-pro
 [SUCCESS] 检测到 go-admin-core 依赖
 [INFO] 创建备份: backup_before_v1.8_20251017_150000
 [SUCCESS] 备份完成: ../backup_before_v1.8_20251017_150000

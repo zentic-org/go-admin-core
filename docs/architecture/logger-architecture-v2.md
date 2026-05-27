@@ -298,7 +298,7 @@ func (s *samplingLogger) shouldSample() bool {
 #### 1. 基础使用
 
 ```go
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 // 方式 1：使用默认 Logrus Logger
 log := logger.NewLogrusLogger()
@@ -453,7 +453,7 @@ log.AddHook(&CustomHook{
 
 ```bash
 # 升级依赖
-go get github.com/go-admin-team/go-admin-core@v2.0.0
+go get github.com/zentic-org/go-admin-core@v2.0.0
 
 # 无需修改代码，自动使用 Logrus
 ```

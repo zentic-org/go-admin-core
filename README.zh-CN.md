@@ -32,7 +32,7 @@
 ### 安装
 
 ```bash
-go get -u github.com/go-admin-team/go-admin-core
+go get -u github.com/zentic-org/go-admin-core
 ```
 
 **系统要求:** Go 1.25.1 或更高版本
@@ -42,7 +42,7 @@ go get -u github.com/go-admin-team/go-admin-core
 ```go
 package main
 
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 func main() {
     // 创建 Logrus 日志实例
@@ -125,7 +125,7 @@ asyncLog.Fields(map[string]interface{}{
 ```go
 package main
 
-import "github.com/go-admin-team/go-admin-core/config"
+import "github.com/zentic-org/go-admin-core/config"
 
 func main() {
     source := config.FileSource("config.json")

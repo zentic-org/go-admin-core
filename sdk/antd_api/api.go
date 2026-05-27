@@ -5,15 +5,15 @@ import (
 	"fmt"
 	vd "github.com/bytedance/go-tagexpr/v2/validator"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/go-admin-team/go-admin-core/response/antd"
-	"github.com/go-admin-team/go-admin-core/sdk/service"
+	"github.com/zentic-org/go-admin-core/response/antd"
+	"github.com/zentic-org/go-admin-core/sdk/service"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/logger"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/zentic-org/go-admin-core/logger"
+	"github.com/zentic-org/go-admin-core/sdk/api"
+	"github.com/zentic-org/go-admin-core/sdk/pkg"
 	"gorm.io/gorm"
 )
 

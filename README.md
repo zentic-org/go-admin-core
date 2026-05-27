@@ -32,7 +32,7 @@
 ### Installation
 
 ```bash
-go get -u github.com/go-admin-team/go-admin-core
+go get -u github.com/zentic-org/go-admin-core
 ```
 
 **System Requirements:** Go 1.25.1 or higher
@@ -42,7 +42,7 @@ go get -u github.com/go-admin-team/go-admin-core
 ```go
 package main
 
-import "github.com/go-admin-team/go-admin-core/logger"
+import "github.com/zentic-org/go-admin-core/logger"
 
 func main() {
     // Create Logrus logger instance
@@ -125,7 +125,7 @@ asyncLog.Fields(map[string]interface{}{
 ```go
 package main
 
-import "github.com/go-admin-team/go-admin-core/config"
+import "github.com/zentic-org/go-admin-core/config"
 
 func main() {
     source := config.FileSource("config.json")
@@ -202,8 +202,8 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details
 
 ## 🔗 Related Projects
 
-- [go-admin](https://github.com/go-admin-team/go-admin) - Gin + Vue + Element UI based RBAC system with separated frontend/backend
-- [go-admin-ui](https://github.com/go-admin-team/go-admin-ui) - go-admin frontend project
+- [go-admin](https://github.com/zentic-org/go-admin) - Gin + Vue + Element UI based RBAC system with separated frontend/backend
+- [go-admin-ui](https://github.com/zentic-org/go-admin-ui) - go-admin frontend project
 
 ---
 
