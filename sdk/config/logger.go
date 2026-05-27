@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"github.com/zentic-org/go-admin-core/logger"
 	"github.com/zentic-org/go-admin-core/sdk/pkg"
 	log "github.com/zentic-org/go-admin-core/logger"
@@ -18,9 +19,19 @@ type Logger struct {
 // Setup 设置logger（使用新的 logger 架构）
 func (e Logger) Setup() {
 	// 确保目录存在
-	if e.Path != "" && !pkg.PathExist(e.Path) {
-		if err := pkg.PathCreate(e.Path); err != nil {
-			log.Fatalf("create log dir error: %s", err.Error())
+	if e.Path != "" {
+		// 检查路径是否存在且是文件，如果是文件则删除
+		if info, err := os.Stat(e.Path); err == nil && !info.IsDir() {
+			log.Warnf("log path %s is a file, removing it", e.Path)
+			if err := os.Remove(e.Path); err != nil {
+				log.Fatalf("failed to remove log file: %s", err.Error())
+			}
+		}
+		
+		if !pkg.PathExist(e.Path) {
+			if err := pkg.PathCreate(e.Path); err != nil {
+				log.Fatalf("create log dir error: %s", err.Error())
+			}
 		}
 	}
 
