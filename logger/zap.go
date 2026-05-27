@@ -2,11 +2,14 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // zapLogger zap 日志实现（高性能，零分配）
@@ -14,7 +17,7 @@ type zapLogger struct {
 	logger  *zap.Logger
 	sugar   *zap.SugaredLogger
 	opts    Options
-	logFile *os.File // 持有文件句柄以便关闭
+	logFile *lumberjack.Logger // 使用 lumberjack 支持日志轮转
 }
 
 // NewZapLogger 创建基于 zap 的高性能 logger
@@ -22,7 +25,7 @@ func NewZapLogger(opts ...Option) Logger {
 	options := DefaultOptions()
 	options.Level = InfoLevel
 	options.CallerSkipCount = 2
-	options.Name = "go-admin"
+	// 注意：不设置 options.Name 默认值，允许调用者通过 WithName() 传入
 	
 	for _, o := range opts {
 		o(&options)
@@ -56,22 +59,24 @@ func NewZapLogger(opts ...Option) Logger {
 
 	// 配置输出
 	var writers []zapcore.WriteSyncer
-	var logFile *os.File
+	var logFile *lumberjack.Logger
 	if options.Stdout {
 		writers = append(writers, zapcore.AddSync(os.Stdout))
 	}
 	if options.Path != "" {
-		var err error
-		logFile, err = os.OpenFile(options.Path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			// 文件打开失败时记录错误并继续（只输出到控制台）
-			if options.Stdout {
-				// 如果有控制台输出，打印警告
-				os.Stderr.WriteString("Warning: failed to open log file: " + err.Error() + "\n")
-			}
-		} else {
-			writers = append(writers, zapcore.AddSync(logFile))
+		// 生成带日期的日志文件名
+		logFilename := generateLogFilenameForZap(options.Path, options.LocalTime)
+		
+		// 使用 lumberjack 实现日志轮转和压缩
+		logFile = &lumberjack.Logger{
+			Filename:   logFilename,
+			MaxSize:    options.MaxSize,    // MB
+			MaxBackups: options.MaxBackups, // 最多保留文件数
+			MaxAge:     options.MaxAge,     // 天
+			Compress:   options.Compress,   // 启用压缩
+			LocalTime:  options.LocalTime,  // 使用本地时间
 		}
+		writers = append(writers, zapcore.AddSync(logFile))
 	}
 	writer := zapcore.NewMultiWriteSyncer(writers...)
 
@@ -303,4 +308,28 @@ func extractContextFields(ctx context.Context) map[string]interface{} {
 	}
 	
 	return fields
+}
+
+// generateLogFilenameForZap 生成带日期的日志文件名（Zap 专用）
+// 输入: /var/log/app.log, true
+// 输出: /var/log/app.2006-01-02.log
+func generateLogFilenameForZap(path string, useLocalTime bool) string {
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+	
+	// 分离文件名和扩展名
+	ext := filepath.Ext(base)
+	name := base[:len(base)-len(ext)]
+	
+	// 获取当前日期
+	var dateStr string
+	if useLocalTime {
+		dateStr = time.Now().Format("2006-01-02")
+	} else {
+		dateStr = time.Now().UTC().Format("2006-01-02")
+	}
+	
+	// 生成带日期的文件名: app.2006-01-02.log
+	newFilename := fmt.Sprintf("%s.%s%s", name, dateStr, ext)
+	return filepath.Join(dir, newFilename)
 }

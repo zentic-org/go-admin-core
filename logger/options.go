@@ -142,6 +142,46 @@ func WithSanitizer(config SanitizerConfig) Option {
 	}
 }
 
+// WithMaxSize sets max size for log file (MB)
+// WithMaxSize 设置日志文件最大大小（MB）
+func WithMaxSize(size int) Option {
+	return func(args *Options) {
+		args.MaxSize = size
+	}
+}
+
+// WithMaxAge sets max age for log file (days)
+// WithMaxAge 设置日志文件最大保留天数
+func WithMaxAge(age int) Option {
+	return func(args *Options) {
+		args.MaxAge = age
+	}
+}
+
+// WithMaxBackups sets max backups for log file
+// WithMaxBackups 设置日志文件最大备份数量
+func WithMaxBackups(backups int) Option {
+	return func(args *Options) {
+		args.MaxBackups = backups
+	}
+}
+
+// WithCompress enables compression for old log files
+// WithCompress 启用旧日志文件压缩
+func WithCompress(enabled bool) Option {
+	return func(args *Options) {
+		args.Compress = enabled
+	}
+}
+
+// WithLocalTime enables local time for log file naming
+// WithLocalTime 启用本地时间命名日志文件
+func WithLocalTime(enabled bool) Option {
+	return func(args *Options) {
+		args.LocalTime = enabled
+	}
+}
+
 // DefaultOptions returns default options
 // DefaultOptions 返回默认选项
 func DefaultOptions() Options {

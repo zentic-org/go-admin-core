@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -49,7 +50,7 @@ func NewLogrusLogger(opts ...Option) Logger {
 	options := DefaultOptions()
 	options.Level = InfoLevel
 	options.CallerSkipCount = 2
-	options.Name = "go-admin"
+	// 注意：不设置 options.Name 默认值，允许调用者通过 WithName() 传入
 	
 	for _, o := range opts {
 		o(&options)
@@ -79,13 +80,16 @@ func NewLogrusLogger(opts ...Option) Logger {
 		// 确保目录存在
 		dir := filepath.Dir(options.Path)
 		if err := os.MkdirAll(dir, 0755); err == nil {
+			// 生成带日期的日志文件名
+			logFilename := generateLogFilename(options.Path, options.LocalTime)
+			
 			fileWriter := &lumberjack.Logger{
-				Filename:   options.Path,
-				MaxSize:    options.MaxSize,
-				MaxBackups: options.MaxBackups,
-				MaxAge:     options.MaxAge,
-				Compress:   options.Compress,
-				LocalTime:  options.LocalTime,
+				Filename:   logFilename,
+				MaxSize:    options.MaxSize,    // MB
+				MaxBackups: options.MaxBackups, // 最多保留文件数
+				MaxAge:     options.MaxAge,     // 天
+				Compress:   options.Compress,   // 启用压缩
+				LocalTime:  options.LocalTime,  // 使用本地时间
 			}
 			writers = append(writers, fileWriter)
 		}
@@ -540,4 +544,28 @@ func (h *MetricsHook) Fire(entry *logrus.Entry) error {
 	// TODO: 记录 Prometheus 指标
 	// logCounter.WithLabelValues(entry.Level.String()).Inc()
 	return nil
+}
+
+// generateLogFilename 生成带日期的日志文件名
+// 输入: /var/log/app.log, true
+// 输出: /var/log/app.2006-01-02.log
+func generateLogFilename(path string, useLocalTime bool) string {
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+	
+	// 分离文件名和扩展名
+	ext := filepath.Ext(base)
+	name := base[:len(base)-len(ext)]
+	
+	// 获取当前日期
+	var dateStr string
+	if useLocalTime {
+		dateStr = time.Now().Format("2006-01-02")
+	} else {
+		dateStr = time.Now().UTC().Format("2006-01-02")
+	}
+	
+	// 生成带日期的文件名: app.2006-01-02.log
+	newFilename := fmt.Sprintf("%s.%s%s", name, dateStr, ext)
+	return filepath.Join(dir, newFilename)
 }
