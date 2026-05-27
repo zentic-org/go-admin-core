@@ -5,7 +5,7 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
-	gormAdapter "github.com/casbin/gorm-adapter/v3"
+	gormAdapter "github.com/casbin/gorm-adapter/v2"
 	"github.com/zentic-org/go-admin-core/logger"
 	"github.com/zentic-org/go-admin-core/sdk"
 	"gorm.io/gorm"
