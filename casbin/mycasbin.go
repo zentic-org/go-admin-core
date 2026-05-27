@@ -3,9 +3,9 @@ package mycasbin
 import (
 	"sync"
 
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
-	gormAdapter "github.com/casbin/gorm-adapter/v2"
+	"github.com/casbin/casbin/v3"
+	"github.com/casbin/casbin/v3/model"
+	gormAdapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/zentic-org/go-admin-core/logger"
 	"github.com/zentic-org/go-admin-core/sdk"
 	"gorm.io/gorm"
@@ -50,8 +50,6 @@ func Setup(db *gorm.DB, _ string) *casbin.SyncedEnforcer {
 		if err != nil {
 			panic(err)
 		}
-
-		enforcer.EnableLog(true)
 	})
 
 	return enforcer

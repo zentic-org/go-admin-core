@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"github.com/zentic-org/go-admin-core/logger"
 	"github.com/zentic-org/go-admin-core/storage"
 	"github.com/robfig/cron/v3"

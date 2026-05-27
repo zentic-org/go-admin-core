@@ -10,7 +10,7 @@ package mycasbin
 
 import (
 	newcasbin "github.com/zentic-org/go-admin-core/casbin"
-	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v3"
 	"gorm.io/gorm"
 )
 
