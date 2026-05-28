@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -51,7 +50,7 @@ func NewLogrusLogger(opts ...Option) Logger {
 	options.Level = InfoLevel
 	options.CallerSkipCount = 2
 	// 注意：不设置 options.Name 默认值，允许调用者通过 WithName() 传入
-	
+
 	for _, o := range opts {
 		o(&options)
 	}
@@ -64,27 +63,25 @@ func NewLogrusLogger(opts ...Option) Logger {
 
 	// 设置输出
 	writers := []io.Writer{}
-	
+
 	// 自定义输出（用于测试或特殊场景）
 	if options.Out != nil {
 		writers = append(writers, options.Out)
 	}
-	
+
 	// 控制台输出
 	if options.Stdout && options.Out == nil {
 		writers = append(writers, os.Stdout)
 	}
-	
+
 	// 文件输出（支持日志轮转）
 	if options.Path != "" {
 		// 确保目录存在
 		dir := filepath.Dir(options.Path)
 		if err := os.MkdirAll(dir, 0755); err == nil {
-			// 生成带日期的日志文件名
-			logFilename := generateLogFilename(options.Path, options.LocalTime)
-			
+			// 使用原始文件名，让 lumberjack 自动处理日期和轮转
 			fileWriter := &lumberjack.Logger{
-				Filename:   logFilename,
+				Filename:   options.Path,       // 使用原始路径
 				MaxSize:    options.MaxSize,    // MB
 				MaxBackups: options.MaxBackups, // 最多保留文件数
 				MaxAge:     options.MaxAge,     // 天
@@ -94,7 +91,7 @@ func NewLogrusLogger(opts ...Option) Logger {
 			writers = append(writers, fileWriter)
 		}
 	}
-	
+
 	if len(writers) > 0 {
 		log.SetOutput(io.MultiWriter(writers...))
 	} else {
@@ -140,31 +137,31 @@ func NewLogrusLogger(opts ...Option) Logger {
 		entry:  entry,
 		opts:   options,
 	}
-	
+
 	// 应用高级功能（采样、异步、脱敏）
 	var finalLogger Logger = baseLogger
-	
+
 	// 1. 脱敏（最内层）- 在字段传入时立即脱敏
 	if options.Context != nil {
 		if config, ok := options.Context.Value("sanitizer").(SanitizerConfig); ok && config.Enabled {
 			finalLogger = NewSanitizerLogger(finalLogger, config)
 		}
 	}
-	
+
 	// 2. 采样（中间层）- 在脱敏后决定是否记录
 	if options.Context != nil {
 		if config, ok := options.Context.Value("sampling").(SamplingConfig); ok && config.Tick > 0 {
 			finalLogger = NewSamplingLogger(finalLogger, config)
 		}
 	}
-	
+
 	// 3. 异步（最外层）- 在采样决策后异步写入
 	if options.Context != nil {
 		if config, ok := options.Context.Value("async").(AsyncConfig); ok && config.BufferSize > 0 {
 			finalLogger = NewAsyncLogger(finalLogger, config)
 		}
 	}
-	
+
 	return finalLogger
 }
 
@@ -197,7 +194,7 @@ func (l *logrusAdapter) Fields(fields map[string]interface{}) Logger {
 func (l *logrusAdapter) Log(level Level, v ...interface{}) {
 	// 获取真实调用者位置（跳过 logger 包装层）
 	entry := l.getEntryWithCaller(2)
-	
+
 	switch level {
 	case TraceLevel, DebugLevel:
 		entry.Debug(v...)
@@ -215,7 +212,7 @@ func (l *logrusAdapter) Log(level Level, v ...interface{}) {
 func (l *logrusAdapter) Logf(level Level, format string, v ...interface{}) {
 	// 获取真实调用者位置（跳过 logger 包装层）
 	entry := l.getEntryWithCaller(2)
-	
+
 	switch level {
 	case TraceLevel, DebugLevel:
 		entry.Debugf(format, v...)
@@ -241,23 +238,23 @@ func shouldSkipFrame(file string) bool {
 	if strings.HasSuffix(file, "_test.go") {
 		return false
 	}
-	
+
 	// 1. logger 包内部文件（使用 HasPrefix，不受 -trimpath 影响）
 	if strings.HasPrefix(file, loggerSourceDir) {
 		return true
 	}
-	
+
 	// 2. 第三方库：检查是否在 go/pkg/mod 目录下
 	//    业务代码使用 -trimpath 编译后是相对路径，不会包含此路径
 	if strings.Contains(file, "/go/pkg/mod/") {
 		return true
 	}
-	
+
 	// 3. runtime 和 testing 包（Go 标准库）
 	if strings.Contains(file, "/runtime/") || strings.Contains(file, "/testing/") {
 		return true
 	}
-	
+
 	// 其他都是业务代码
 	return false
 }
@@ -272,16 +269,16 @@ func (l *logrusAdapter) getEntryWithCaller(skip int) *logrus.Entry {
 	// 从第 3 层开始（跳过 runtime.Callers 本身、getEntryWithCaller、Log/Logf）
 	length := runtime.Callers(3, pcs[:])
 	frames := runtime.CallersFrames(pcs[:length])
-	
+
 	for i := 0; i < length; i++ {
 		frame, _ := frames.Next()
-		
+
 		// 调试：打印调用栈（仅在开发环境）
 		if os.Getenv("DEBUG_CALLER") == "1" {
 			skip := shouldSkipFrame(frame.File)
 			fmt.Fprintf(os.Stderr, "[CALLER] %s:%d | skip=%v\n", frame.File, frame.Line, skip)
 		}
-		
+
 		// 找到第一个业务代码（参考 GORM：!HasPrefix && !Contains）
 		if !shouldSkipFrame(frame.File) {
 			if os.Getenv("DEBUG_CALLER") == "1" {
@@ -290,7 +287,7 @@ func (l *logrusAdapter) getEntryWithCaller(skip int) *logrus.Entry {
 			return l.entry.WithField("caller", formatCaller(frame))
 		}
 	}
-	
+
 	if os.Getenv("DEBUG_CALLER") == "1" {
 		fmt.Fprintf(os.Stderr, "[CALLER] ❌ No business code found\n")
 	}
@@ -492,7 +489,7 @@ func (h *CallerHook) Fire(entry *logrus.Entry) error {
 	pcs := make([]uintptr, 30)
 	depth := runtime.Callers(0, pcs)
 	frames := runtime.CallersFrames(pcs[:depth])
-	
+
 	for {
 		frame, more := frames.Next()
 		// 跳过以下文件：
@@ -501,13 +498,13 @@ func (h *CallerHook) Fire(entry *logrus.Entry) error {
 		// 3. runtime 包文件
 		// 4. testing 包文件（仅在 Go test 运行时）
 		if !strings.Contains(frame.File, "/logger/") &&
-		   !strings.Contains(frame.File, "/logrus@") &&
-		   !strings.Contains(frame.File, "/runtime/") &&
-		   !strings.Contains(frame.File, "/testing/") &&
-		   !strings.Contains(frame.Function, "github.com/zentic-org/go-admin-core/logger") &&
-		   !strings.Contains(frame.Function, "github.com/sirupsen/logrus") &&
-		   !strings.Contains(frame.Function, "runtime.") &&
-		   !strings.Contains(frame.Function, "testing.") {
+			!strings.Contains(frame.File, "/logrus@") &&
+			!strings.Contains(frame.File, "/runtime/") &&
+			!strings.Contains(frame.File, "/testing/") &&
+			!strings.Contains(frame.Function, "github.com/zentic-org/go-admin-core/logger") &&
+			!strings.Contains(frame.Function, "github.com/sirupsen/logrus") &&
+			!strings.Contains(frame.Function, "runtime.") &&
+			!strings.Contains(frame.Function, "testing.") {
 			// 找到第一个业务代码调用位置
 			entry.Caller = &runtime.Frame{
 				PC:       frame.PC,
@@ -544,28 +541,4 @@ func (h *MetricsHook) Fire(entry *logrus.Entry) error {
 	// TODO: 记录 Prometheus 指标
 	// logCounter.WithLabelValues(entry.Level.String()).Inc()
 	return nil
-}
-
-// generateLogFilename 生成带日期的日志文件名
-// 输入: /var/log/app.log, true
-// 输出: /var/log/app.2006-01-02.log
-func generateLogFilename(path string, useLocalTime bool) string {
-	dir := filepath.Dir(path)
-	base := filepath.Base(path)
-	
-	// 分离文件名和扩展名
-	ext := filepath.Ext(base)
-	name := base[:len(base)-len(ext)]
-	
-	// 获取当前日期
-	var dateStr string
-	if useLocalTime {
-		dateStr = time.Now().Format("2006-01-02")
-	} else {
-		dateStr = time.Now().UTC().Format("2006-01-02")
-	}
-	
-	// 生成带日期的文件名: app.2006-01-02.log
-	newFilename := fmt.Sprintf("%s.%s%s", name, dateStr, ext)
-	return filepath.Join(dir, newFilename)
 }
