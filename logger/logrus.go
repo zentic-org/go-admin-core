@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -35,6 +36,25 @@ func sourceDir(file string) string {
 	dir := filepath.Dir(file) // /path/to/go-admin-core/logger
 	// 直接返回 logger 包目录，统一使用 / 并加上结尾斜杠
 	return filepath.ToSlash(dir) + "/"
+}
+
+// addDateToFilename 在文件名中添加日期（保留扩展名）
+// 例如：/var/log/app.log -> /var/log/app-2026-05-28.log
+//
+//	/var/log/access.log -> /var/log/access-2026-05-28.log
+func addDateToFilename(path string) string {
+	dir := filepath.Dir(path)
+	base := filepath.Base(path)
+
+	// 分离文件名和扩展名
+	ext := filepath.Ext(base)
+	name := base[:len(base)-len(ext)]
+
+	// 添加日期：YYYY-MM-DD
+	dateStr := time.Now().Format("2006-01-02")
+	newBase := name + "-" + dateStr + ext
+
+	return filepath.Join(dir, newBase)
 }
 
 // logrusAdapter Logrus 适配器（生态丰富，插件多）
@@ -79,9 +99,12 @@ func NewLogrusLogger(opts ...Option) Logger {
 		// 确保目录存在
 		dir := filepath.Dir(options.Path)
 		if err := os.MkdirAll(dir, 0755); err == nil {
-			// 使用原始文件名，让 lumberjack 自动处理日期和轮转
+			// 在文件名中添加日期，让 lumberjack 自动处理轮转和压缩
+			// 例如：/var/log/app.log -> /var/log/app-2026-05-28.log
+			pathWithDate := addDateToFilename(options.Path)
+
 			fileWriter := &lumberjack.Logger{
-				Filename:   options.Path,       // 使用原始路径
+				Filename:   pathWithDate,       // 使用带日期的路径
 				MaxSize:    options.MaxSize,    // MB
 				MaxBackups: options.MaxBackups, // 最多保留文件数
 				MaxAge:     options.MaxAge,     // 天
