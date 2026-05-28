@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -17,9 +18,9 @@ type SamplingConfig struct {
 
 // DefaultSamplingConfig 默认采样配置（生产环境推荐）
 var DefaultSamplingConfig = SamplingConfig{
-	Initial:    10,              // 每秒前 10 条必记录
-	Thereafter: 100,             // 之后每 100 条记录 1 条
-	Tick:       time.Second,     // 每秒重置
+	Initial:    10,          // 每秒前 10 条必记录
+	Thereafter: 100,         // 之后每 100 条记录 1 条
+	Tick:       time.Second, // 每秒重置
 }
 
 // samplingState 采样状态（共享状态，使用指针避免复制）
@@ -49,7 +50,7 @@ func NewSamplingLogger(logger Logger, config SamplingConfig) Logger {
 	if config.Tick <= 0 {
 		config.Tick = time.Second
 	}
-	
+
 	return &samplingLogger{
 		logger: logger,
 		config: config,
@@ -93,7 +94,7 @@ func (s *samplingLogger) String() string {
 func (s *samplingLogger) shouldSample() bool {
 	s.state.mu.Lock()
 	defer s.state.mu.Unlock()
-	
+
 	// 检查是否进入新周期
 	now := time.Now()
 	currentTick := uint64(now.Sub(s.state.start) / s.config.Tick)
@@ -102,15 +103,15 @@ func (s *samplingLogger) shouldSample() bool {
 		s.state.tick = currentTick
 		s.state.counter = 0
 	}
-	
+
 	s.state.counter++
-	
+
 	// 采样决策
 	if s.state.counter <= uint64(s.config.Initial) {
 		// 前 N 条必须记录
 		return true
 	}
-	
+
 	// 之后每 M 条记录 1 条
 	return (s.state.counter-uint64(s.config.Initial))%uint64(s.config.Thereafter) == 1
 }
@@ -122,7 +123,7 @@ type extendedLogger interface {
 	Debug(msg string, fields ...Field)
 	Warn(msg string, fields ...Field)
 	Error(msg string, fields ...Field)
-	WithContext(ctx interface{}) Logger
+	WithContext(ctx context.Context) Logger
 	With(fields ...Field) Logger
 	Sync() error
 }
@@ -161,7 +162,7 @@ func (s *samplingLogger) Error(msg string, fields ...Field) {
 	}
 }
 
-func (s *samplingLogger) WithContext(ctx interface{}) Logger {
+func (s *samplingLogger) WithContext(ctx context.Context) Logger {
 	if ext, ok := s.logger.(extendedLogger); ok {
 		return &samplingLogger{
 			logger: ext.WithContext(ctx),

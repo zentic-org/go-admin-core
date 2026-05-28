@@ -57,6 +57,29 @@ func addDateToFilename(path string) string {
 	return filepath.Join(dir, newBase)
 }
 
+func cloneLogrusOptions(opts Options) Options {
+	cloned := opts
+	if opts.Fields != nil {
+		cloned.Fields = copyFields(opts.Fields)
+	}
+	return cloned
+}
+
+func mergeFieldMaps(base, extra map[string]interface{}) map[string]interface{} {
+	if len(base) == 0 && len(extra) == 0 {
+		return nil
+	}
+
+	merged := make(map[string]interface{}, len(base)+len(extra))
+	for k, v := range base {
+		merged[k] = v
+	}
+	for k, v := range extra {
+		merged[k] = v
+	}
+	return merged
+}
+
 // logrusAdapter Logrus 适配器（生态丰富，插件多）
 type logrusAdapter struct {
 	logger *logrus.Logger
@@ -75,6 +98,13 @@ func NewLogrusLogger(opts ...Option) Logger {
 		o(&options)
 	}
 
+	options = cloneLogrusOptions(options)
+
+	baseLogger := newLogrusAdapter(options)
+	return wrapLogrusLogger(baseLogger, options)
+}
+
+func newLogrusAdapter(options Options) *logrusAdapter {
 	// 创建 Logrus Logger
 	log := logrus.New()
 
@@ -112,6 +142,8 @@ func NewLogrusLogger(opts ...Option) Logger {
 				LocalTime:  options.LocalTime,  // 使用本地时间
 			}
 			writers = append(writers, fileWriter)
+		} else {
+			fmt.Fprintf(os.Stderr, "logger: create log directory %s: %v\n", dir, err)
 		}
 	}
 
@@ -146,21 +178,22 @@ func NewLogrusLogger(opts ...Option) Logger {
 	log.SetReportCaller(false)
 
 	// 创建 Entry（带默认字段）
-	entry := log.WithFields(logrus.Fields{})
+	entry := logrus.NewEntry(log)
 	if options.Name != "" {
 		entry = entry.WithField("logger", options.Name)
 	}
-	if options.Fields != nil {
+	if len(options.Fields) > 0 {
 		entry = entry.WithFields(logrus.Fields(options.Fields))
 	}
 
-	// 创建基础 logger
-	baseLogger := &logrusAdapter{
+	return &logrusAdapter{
 		logger: log,
 		entry:  entry,
 		opts:   options,
 	}
+}
 
+func wrapLogrusLogger(baseLogger Logger, options Options) Logger {
 	// 应用高级功能（采样、异步、脱敏）
 	var finalLogger Logger = baseLogger
 
@@ -192,34 +225,45 @@ func (l *logrusAdapter) Init(opts ...Option) error {
 	for _, o := range opts {
 		o(&l.opts)
 	}
-	// 重新创建 logger
-	newLogger := NewLogrusLogger(opts...)
-	if adapter, ok := newLogger.(*logrusAdapter); ok {
-		l.logger = adapter.logger
-		l.entry = adapter.entry
-		l.opts = adapter.opts
-	}
+
+	l.opts = cloneLogrusOptions(l.opts)
+	rebuilt := newLogrusAdapter(l.opts)
+	l.logger = rebuilt.logger
+	l.entry = rebuilt.entry
+	l.opts = rebuilt.opts
 	return nil
 }
 
 func (l *logrusAdapter) Options() Options {
-	return l.opts
+	return cloneLogrusOptions(l.opts)
 }
 
 func (l *logrusAdapter) Fields(fields map[string]interface{}) Logger {
+	mergedFields := mergeFieldMaps(l.opts.Fields, copyFields(fields))
+	childOpts := cloneLogrusOptions(l.opts)
+	childOpts.Fields = mergedFields
+
 	return &logrusAdapter{
 		logger: l.logger,
-		entry:  l.entry.WithFields(logrus.Fields(fields)),
-		opts:   l.opts,
+		entry:  l.entry.WithFields(logrus.Fields(copyFields(fields))),
+		opts:   childOpts,
 	}
 }
 
 func (l *logrusAdapter) Log(level Level, v ...interface{}) {
-	// 获取真实调用者位置（跳过 logger 包装层）
-	entry := l.getEntryWithCaller(2)
+	l.writeArgs(level, 1, v...)
+}
 
+func (l *logrusAdapter) Logf(level Level, format string, v ...interface{}) {
+	l.writeFormat(level, 1, format, v...)
+}
+
+func (l *logrusAdapter) writeArgs(level Level, callerSkip int, v ...interface{}) {
+	entry := l.getEntryWithCaller(callerSkip)
 	switch level {
-	case TraceLevel, DebugLevel:
+	case TraceLevel:
+		entry.Trace(v...)
+	case DebugLevel:
 		entry.Debug(v...)
 	case InfoLevel:
 		entry.Info(v...)
@@ -232,12 +276,12 @@ func (l *logrusAdapter) Log(level Level, v ...interface{}) {
 	}
 }
 
-func (l *logrusAdapter) Logf(level Level, format string, v ...interface{}) {
-	// 获取真实调用者位置（跳过 logger 包装层）
-	entry := l.getEntryWithCaller(2)
-
+func (l *logrusAdapter) writeFormat(level Level, callerSkip int, format string, v ...interface{}) {
+	entry := l.getEntryWithCaller(callerSkip)
 	switch level {
-	case TraceLevel, DebugLevel:
+	case TraceLevel:
+		entry.Tracef(format, v...)
+	case DebugLevel:
 		entry.Debugf(format, v...)
 	case InfoLevel:
 		entry.Infof(format, v...)
@@ -289,8 +333,8 @@ func shouldSkipFrame(file string) bool {
 // - 找到第一个业务代码即停止遍历
 func (l *logrusAdapter) getEntryWithCaller(skip int) *logrus.Entry {
 	pcs := [13]uintptr{} // 固定数组，栈分配，高性能
-	// 从第 3 层开始（跳过 runtime.Callers 本身、getEntryWithCaller、Log/Logf）
-	length := runtime.Callers(3, pcs[:])
+	callersSkip := 1 + l.opts.CallerSkipCount + skip
+	length := runtime.Callers(callersSkip, pcs[:])
 	frames := runtime.CallersFrames(pcs[:length])
 
 	for i := 0; i < length; i++ {
@@ -332,28 +376,50 @@ func (l *logrusAdapter) Info(msg string, fields ...Field) {
 	if !l.opts.Level.Enabled(InfoLevel) {
 		return
 	}
-	l.entry.WithFields(toLogrusFields(fields)).Info(msg)
+	l.writeMessage(InfoLevel, 1, msg, fields...)
 }
 
 func (l *logrusAdapter) Debug(msg string, fields ...Field) {
 	if !l.opts.Level.Enabled(DebugLevel) {
 		return
 	}
-	l.entry.WithFields(toLogrusFields(fields)).Debug(msg)
+	l.writeMessage(DebugLevel, 1, msg, fields...)
 }
 
 func (l *logrusAdapter) Warn(msg string, fields ...Field) {
 	if !l.opts.Level.Enabled(WarnLevel) {
 		return
 	}
-	l.entry.WithFields(toLogrusFields(fields)).Warn(msg)
+	l.writeMessage(WarnLevel, 1, msg, fields...)
 }
 
 func (l *logrusAdapter) Error(msg string, fields ...Field) {
 	if !l.opts.Level.Enabled(ErrorLevel) {
 		return
 	}
-	l.entry.WithFields(toLogrusFields(fields)).Error(msg)
+	l.writeMessage(ErrorLevel, 1, msg, fields...)
+}
+
+func (l *logrusAdapter) writeMessage(level Level, callerSkip int, msg string, fields ...Field) {
+	entry := l.getEntryWithCaller(callerSkip)
+	if len(fields) > 0 {
+		entry = entry.WithFields(toLogrusFields(fields))
+	}
+
+	switch level {
+	case TraceLevel:
+		entry.Trace(msg)
+	case DebugLevel:
+		entry.Debug(msg)
+	case InfoLevel:
+		entry.Info(msg)
+	case WarnLevel:
+		entry.Warn(msg)
+	case ErrorLevel:
+		entry.Error(msg)
+	case FatalLevel:
+		entry.Fatal(msg)
+	}
 }
 
 func (l *logrusAdapter) WithContext(ctx context.Context) Logger {
@@ -366,10 +432,15 @@ func (l *logrusAdapter) WithContext(ctx context.Context) Logger {
 }
 
 func (l *logrusAdapter) With(fields ...Field) Logger {
+	fieldMap := fieldsToMap(fields)
+	mergedFields := mergeFieldMaps(l.opts.Fields, fieldMap)
+	childOpts := cloneLogrusOptions(l.opts)
+	childOpts.Fields = mergedFields
+
 	return &logrusAdapter{
 		logger: l.logger,
 		entry:  l.entry.WithFields(toLogrusFields(fields)),
-		opts:   l.opts,
+		opts:   childOpts,
 	}
 }
 
@@ -400,28 +471,7 @@ func toLogrusLevel(level Level) logrus.Level {
 }
 
 func toLogrusFields(fields []Field) logrus.Fields {
-	result := make(logrus.Fields, len(fields))
-	for _, f := range fields {
-		switch f.Type {
-		case FieldTypeString:
-			result[f.Key] = f.String
-		case FieldTypeInt:
-			result[f.Key] = f.Int64
-		case FieldTypeBool:
-			result[f.Key] = f.Int64 != 0
-		case FieldTypeDuration:
-			result[f.Key] = f.Int64
-		case FieldTypeTime:
-			result[f.Key] = f.Int64
-		case FieldTypeError:
-			if f.Any != nil {
-				result[f.Key] = f.Any
-			}
-		default:
-			result[f.Key] = f.Any
-		}
-	}
-	return result
+	return logrus.Fields(fieldsToMap(fields))
 }
 
 // Logrus Hook 支持

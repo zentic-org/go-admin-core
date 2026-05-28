@@ -112,3 +112,33 @@ func Latency(val time.Duration) Field {
 func ClientIP(val string) Field {
 	return FieldString("client_ip", val)
 }
+
+func fieldsToMap(fields []Field) map[string]interface{} {
+	if len(fields) == 0 {
+		return nil
+	}
+
+	result := make(map[string]interface{}, len(fields))
+	for _, f := range fields {
+		switch f.Type {
+		case FieldTypeString:
+			result[f.Key] = f.String
+		case FieldTypeInt:
+			result[f.Key] = f.Int64
+		case FieldTypeBool:
+			result[f.Key] = f.Int64 != 0
+		case FieldTypeDuration:
+			result[f.Key] = time.Duration(f.Int64)
+		case FieldTypeTime:
+			result[f.Key] = time.Unix(0, f.Int64)
+		case FieldTypeError:
+			if f.Any != nil {
+				result[f.Key] = f.Any
+			}
+		default:
+			result[f.Key] = f.Any
+		}
+	}
+
+	return result
+}

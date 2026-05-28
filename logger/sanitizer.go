@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"strings"
@@ -115,7 +116,7 @@ func NewSanitizerLogger(logger Logger, config SanitizerConfig) Logger {
 		// 未启用或无规则，直接返回原 logger
 		return logger
 	}
-	
+
 	// 构建快速查找表
 	matcher := make(map[string]*SanitizerRule)
 	for i := range config.Rules {
@@ -124,13 +125,13 @@ func NewSanitizerLogger(logger Logger, config SanitizerConfig) Logger {
 		if rule.Strategy == "mask" && rule.MaskChar == "" {
 			rule.MaskChar = "*"
 		}
-		
+
 		// 精确匹配规则直接加入 map
 		if !strings.HasPrefix(rule.FieldPattern, "*") {
 			matcher[rule.FieldPattern] = rule
 		}
 	}
-	
+
 	return &sanitizerLogger{
 		logger:  logger,
 		config:  config,
@@ -149,7 +150,7 @@ func (s *sanitizerLogger) Options() Options {
 func (s *sanitizerLogger) Fields(fields map[string]interface{}) Logger {
 	// 脱敏字段
 	sanitized := s.sanitizeFields(fields)
-	
+
 	return &sanitizerLogger{
 		logger:  s.logger.Fields(sanitized),
 		config:  s.config,
@@ -174,24 +175,24 @@ func (s *sanitizerLogger) sanitizeFields(fields map[string]interface{}) map[stri
 	if len(fields) == 0 {
 		return fields
 	}
-	
+
 	// 复制字段（避免修改原始数据）
 	result := make(map[string]interface{}, len(fields))
 	for k, v := range fields {
 		result[k] = v
 	}
-	
+
 	// 遍历字段，应用脱敏规则
 	for key, value := range result {
 		rule := s.matchRule(key)
 		if rule == nil {
 			continue
 		}
-		
+
 		// 应用脱敏策略
 		result[key] = s.applySanitizer(value, rule)
 	}
-	
+
 	return result
 }
 
@@ -201,20 +202,20 @@ func (s *sanitizerLogger) matchRule(fieldName string) *SanitizerRule {
 	if rule, ok := s.matcher[fieldName]; ok {
 		return rule
 	}
-	
+
 	// 2. 精确匹配（小写）
 	lowerName := strings.ToLower(fieldName)
 	if rule, ok := s.matcher[lowerName]; ok {
 		return rule
 	}
-	
+
 	// 3. 自定义匹配器
 	if s.config.CustomMatcher != nil {
 		if rule := s.config.CustomMatcher(fieldName); rule != nil {
 			return rule
 		}
 	}
-	
+
 	// 4. 后缀匹配（遍历规则）
 	for i := range s.config.Rules {
 		rule := &s.config.Rules[i]
@@ -225,7 +226,7 @@ func (s *sanitizerLogger) matchRule(fieldName string) *SanitizerRule {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -236,7 +237,7 @@ func (s *sanitizerLogger) applySanitizer(value interface{}, rule *SanitizerRule)
 	if !ok {
 		return value
 	}
-	
+
 	switch rule.Strategy {
 	case "mask":
 		return s.maskString(str, rule)
@@ -252,17 +253,17 @@ func (s *sanitizerLogger) applySanitizer(value interface{}, rule *SanitizerRule)
 // maskString 掩码字符串（保留前后，中间替换）
 func (s *sanitizerLogger) maskString(str string, rule *SanitizerRule) string {
 	length := len(str)
-	
+
 	// 字符串太短，不脱敏
 	if length <= rule.KeepPrefix+rule.KeepSuffix {
 		return strings.Repeat(rule.MaskChar, length)
 	}
-	
+
 	// 构造掩码字符串
 	prefix := str[:rule.KeepPrefix]
 	suffix := str[length-rule.KeepSuffix:]
 	maskLen := length - rule.KeepPrefix - rule.KeepSuffix
-	
+
 	return prefix + strings.Repeat(rule.MaskChar, maskLen) + suffix
 }
 
@@ -298,7 +299,7 @@ func (s *sanitizerLogger) Error(msg string, fields ...Field) {
 	}
 }
 
-func (s *sanitizerLogger) WithContext(ctx interface{}) Logger {
+func (s *sanitizerLogger) WithContext(ctx context.Context) Logger {
 	if ext, ok := s.logger.(extendedLogger); ok {
 		return &sanitizerLogger{
 			logger:  ext.WithContext(ctx),
